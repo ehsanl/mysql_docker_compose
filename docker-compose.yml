@@ -1,0 +1,50 @@
+version: '3'
+services:
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    environment:
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    links:
+      - app1
+      - app2
+
+  app1:
+    image: wordpress
+    links:
+     - db
+    environment:
+     - WORDPRESS_DB_PASSWORD=password
+    ports:
+     - "public_ip:80:80"
+    volumes:
+     - ./html:/var/www/html
+
+  app2:
+    image: wordpress
+    links:
+     - db
+    environment:
+     - WORDPRESS_DB_PASSWORD=password
+    ports:
+     - "public_ip:80:80"
+    volumes:
+     - ./html:/var/www/html          
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./database:/var/lib/mysql
+    ports:
+      - "3306:3306"
